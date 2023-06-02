@@ -1,4 +1,5 @@
 import './App.css';
+import {useState} from 'react';
 
 function Header(props) {
   console.log('props.title:', props.title)
@@ -25,7 +26,7 @@ function Nav(props) {
     lis.push(<li key={t.id}>
       <a id={t.id} href={'/read/'+t.id} onClick={event => {
         event.preventDefault();
-        props.onChangeMode(event.target.id);
+        props.onChangeMode(Number(event.target.id));
       }}>
         {t.title}
       </a>
@@ -50,36 +51,66 @@ function Article(props) {
   )
 }
 
+function Create () {
+  return(
+    <article>
+      <h2>Create</h2>
+      <form onSubmit={event=>{
+
+      }}>
+        <p><input type="text" name="title" placeholder="title" /></p>
+        <p><textarea name="body" placeholder="body"></textarea></p>
+      </form>
+    </article>
+  )
+}
+
 function App() {
-  const mode = 'READ'
+  const [mode, setMode] = useState('WELCOME');
+  const [id, setId] = useState(null);
   const topics = [
     {id:1, title: 'html', body: 'html is...'},
     {id:2, title: 'css', body: 'css is...'},
     {id:3, title: 'javascript', body: 'javascript is...'}
-]
+  ]
 
   let content= null;
 
-  if(mode == 'WELCOME') {
+  if(mode === 'WELCOME') {
     content=<Article title="Welcome" body="Hello, Web"></Article>
-  }
-
-  if(mode == "READ") {
-    content=<Article title="Welcome" body="Hello, Read"></Article>
+  
+  }else if(mode === 'READ') {
+    let title, body = null;
+    for (let i = 0; i < topics.length; i++) {
+      console.log('topics[i].id', id);
+      if(topics[i].id === id) {
+        title = topics[i].title;
+        body = topics[i].body;
+      }      
+    }
+    content=<Article title={title} body={body}></Article>
+  
+  }else if(mode === 'CREATE'){
+    content = <Create></Create>
   }
 
   return (
     
     <div>
-      <Header title="WEB" onChangeMode={function() {
-        alert('Header');
+      <Header title="WEB" onChangeMode={()=> {
+        setMode('WELCOME');
       }}></Header>
 
-      <Nav topics={topics} onChangeMode={(id)=>{
-        alert(id);
+      <Nav topics={topics} onChangeMode={(_id)=>{
+        setMode('READ');
+        setId(_id);
       }} />
 
       {content}
+      <a href="/create" onClick={event=>{
+        event.preventDefault();
+        setMode('CREATE');
+      }}>Create</a>
     </div>
   );
 }
